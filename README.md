@@ -1,52 +1,53 @@
 # delete-workflow-runs v2
-The GitHub action to delete workflow runs in a repository. This action (written in JavaScript) wraps two Workflow Runs API:
-* [**List repository workflows**](https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#list-repository-workflows) -- Lists the workflows in a repository.
+这个 GitHub Action 用于删除代码库中的 workflow 运行记录。这个 JavaScript 写成的 Action 包含了两个 Workflow Runs API：
 
-* [**List workflow runs**](https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#list-workflow-runs) -- List all workflow runs for a workflow.
+* [**列出代码库的 workflows**](https://docs.github.com/cn/free-pro-team@latest/rest/reference/actions#list-repository-workflows) -- 列出代码库中所有可用的 workflows。
 
-* [**Delete a workflow run**](https://docs.github.com/en/free-pro-team@latest/rest/reference/actions#delete-a-workflow-run) -- Delete a specific workflow run.
+* [**列出 workflow 运行记录**](https://docs.github.com/cn/free-pro-team@latest/rest/reference/actions#list-workflow-runs) -- 列出指定 workflow 的所有运行记录。
 
-The action will calculate the number of days that each workflow run has been retained so far, then use this number to compare with the number you specify for the input parameter "[**`retain_days`**](#3-retain_days)". If the retention days of the workflow run has reached (equal to or greater than) the specified number, the workflow run will be deleted.
+* [**删除 workflow 运行记录**](https://docs.github.com/cn/free-pro-team@latest/rest/reference/actions#delete-a-workflow-run) -- 删除指定 workflow 运行记录。
 
-## What's new?
-* Add the input parameter "[**`keep_minimum_runs`**](#4-keep_minimum_runs)". Whit this input parameter, you can specify the number of the minimum runs to keep for each workflow. The specified number of latest runs will be kept for each workflow, even if some of the runs have reached the specified retention days.
+该 Action 将计算每个 workflow 运行记录已保留的天数，然后使用此数字与您在输入参数 "[**`retain_days`**](#3-retain_days)" 中指定的数字进行比较。如果 workflow 运行记录的保留天数已达到（大于等于）指定的数字，则会删除该运行记录。
 
-* Optimize code to simplify the processes.
+## 更新内容
+* 添加输入参数 "[**`keep_minimum_runs`**](#4-keep_minimum_runs)". 通过这个参数，可以指定每个 workflow 的最小运行次数。即使某些运行记录已达到了指定的保留天数，也会保留最新的指定次数的运行记录。
+
+* 优化代码以简化流程。
 ##
 
-## Inputs
+## 输入参数
 ### 1. `token`
-#### Required: YES
-#### Default: `${{ github.token }}`
-The token used to authenticate.
-* If the workflow runs are in the current repository where the action is running, using **`github.token`** is OK. More details, see the [**`GITHUB_TOKEN`**](https://docs.github.com/en/free-pro-team@latest/actions/reference/authentication-in-a-workflow).
-* If the workflow runs are in another repository, you need to use a personal access token (PAT) that must have the **`repo`** scope. More details, see "[Creating a personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)".
+#### 必须：是
+#### 默认值：`${{ github.token }}`
+用于身份验证的 token。
+* 如果 workflow 运行记录在当前 repository 中，使用 **`github.token`** 就可以了。更多细节，请参阅 [**`GITHUB_TOKEN`**](https://docs.github.com/cn/free-pro-team@latest/actions/reference/authentication-in-a-workflow)。
+* 如果 workflow 运行记录在其他 repository 中，则需要使用具有 **`repo`** 范围的 personal access token (PAT)。更多细节，请参阅 "[Creating a personal access token](https://docs.github.com/cn/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)"。
 
 ### 2. `repository`
-#### Required: YES
-#### Default: `${{ github.repository }}`
-The name of the repository where the workflow runs are on.
+#### 必须：是
+#### 默认值：`${{ github.repository }}`
+workflow 运行记录所在的代码库名称。
 
 ### 3. `retain_days`
-#### Required: YES
-#### Default: 90
-The number of days that is used to compare with the retention days of each workflow.
+#### 必须：是
+#### 默认值：90
+与每个 workflow 运行记录的保留天数进行比较的天数。
 
 ### 4. `keep_minimum_runs`
-#### Required: YES
-#### Default: 6
-The minimum runs to keep for each workflow.
+#### 必须：是
+#### 默认值：6
+每个 workflow 的最小运行次数。
 ##
 
-## Examples
-### In scheduled workflow, see [schedule event](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#schedule).
-> **Tip:** Using scheduled workflow is the recommended way that can periodically, automatically delete old workflow runs.
+## 示例
+### 在 cron 定时任务中运行, 参见 [schedule event](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#schedule).
+> **提示：** 推荐使用定时任务来自动删除旧的 workflow 运行记录。
 ```yaml
 name: Delete old workflow runs
 on:
   schedule:
     - cron: '0 0 1 * *'
-# Run monthly, at 00:00 on the 1st day of month.
+# 每月 1 日 00:00 运行。
 
 jobs:
   del_runs:
@@ -60,9 +61,9 @@ jobs:
           retain_days: 30
 ```
 
-### In manual triggered workflow, see [workflow_dispatch event](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#workflow_dispatch).
-> In this way, you can manually trigger the workflow at any time to delete old workflow runs. <br/>
-![manual workflow](https://github.com/ActionsRML/delete-workflow-runs/blob/main/img/example.PNG)
+### 在手动触发的 workflow 中运行, 参见 [workflow_dispatch event](https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#workflow_dispatch).
+> 您可以随时手动触发这个 workflow 来删除旧的 workflow 运行记录。 <br/>
+![manual workflow](https://github.com/zhoujinshi/delete-workflow-runs/blob/main/img/example.PNG)
 ```yaml
 name: Delete old workflow runs
 on:
@@ -78,14 +79,3 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete workflow runs
-        uses: ActionsRML/delete-workflow-runs@main
-        with:
-          token: ${{ secrets.AUTH_PAT }}
-          repository: ${{ github.repository }}
-          retain_days: ${{ github.event.inputs.days }}
-```
-##
-
-## License
-The scripts and documentation in this project are released under the [MIT License](https://github.com/ActionsRML/delete-workflow-runs/blob/main/LICENSE).
-##
